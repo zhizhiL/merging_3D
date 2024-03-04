@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # Solve the IVP RK4 -- for inertial particles
 
 # define the parameters here
-a, alpha, R, Fr, gravity = 1, 1, 0.3, 5, True
+a, alpha, R, Fr, gravity = 1, 1, 0.3, 5, False
 
 
 
@@ -112,7 +112,7 @@ def advect_bubbles(bubbles_df_to_advect, t0, tf, plot_path=False,  this_ax=None,
 
     
         initial_states = bubbles_df_to_advect[:, 1:8]
-        t_span = np.linspace(t0,tf,500)
+        t_span = np.linspace(t0,tf,1500)
 
         n_proc = 12
         with Pool(n_proc) as pool:
@@ -136,4 +136,5 @@ def advect_bubbles(bubbles_df_to_advect, t0, tf, plot_path=False,  this_ax=None,
 
         plt.show()
 
-        return res_array[:,:,-1]
+        # return res_array[:,:,-1]
+        return res_array
