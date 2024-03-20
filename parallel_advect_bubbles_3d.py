@@ -79,7 +79,7 @@ funcptr = rhs.address
 def main(initial_states, t0, tf):
 
     n = initial_states.shape[0]
-    t_eval = np.linspace(t0, tf, 1501)
+    t_eval = np.linspace(t0, tf, 501)
 
     q1 = np.empty((n,len(t_eval)), np.float64)
     q2 = np.empty((n,len(t_eval)), np.float64)
@@ -103,5 +103,5 @@ def main(initial_states, t0, tf):
         q5[i] = usol[:,4]
         q6[i] = usol[:,5]
     
-    return q1, q2, q3, q4, q5, q6
+    return q1[:,-1], q2[:,-1], q3[:,-1], q4[:,-1], q5[:,-1], q6[:,-1]
 
