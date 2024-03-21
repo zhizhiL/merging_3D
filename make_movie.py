@@ -17,7 +17,7 @@ def create_movie_from_frames(target, frame_folder, output_path, fps=2):
     video_writer.release()
 
 target = 'timestep'
-N_realisation = 0
+N_realisation = 1
 frame_folder = 'noInflux_random_sims/temp'
 output_path = frame_folder + '/output_' + target +'_realisation_' + str(N_realisation) + '.mp4'
 create_movie_from_frames(target, frame_folder, output_path)
