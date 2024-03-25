@@ -200,7 +200,10 @@ def merge_package(Bubbles_df_before_merge: np.ndarray, advected_states: np.ndarr
         fig, ax = plt.subplots()
         ax = fig.add_subplot(111, projection='3d')
         marker_size =  (update_bubbles_df[:, 7] * 199/1.4 - 185/14)/10
-        ax.scatter(update_bubbles_df[:, 1], update_bubbles_df[:, 2], update_bubbles_df[:, 3], s=marker_size**0.5, c='k', marker='o', alpha=0.5, linewidths=0)
+        inside = update_bubbles_df[:, 1] **2 + update_bubbles_df[:, 2] **2 + update_bubbles_df[:, 3] **2 < a
+
+        ax.scatter(update_bubbles_df[inside, 1], update_bubbles_df[inside, 2], update_bubbles_df[inside, 3], 
+                   s=marker_size[inside]**0.5, c='k', marker='o', alpha=0.5, linewidths=0)
 
         u = np.linspace(0, 2 * np.pi, 100)
         v = np.linspace(0, np.pi, 100)
