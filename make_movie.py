@@ -1,7 +1,10 @@
 import cv2
 import os
+import shutil
+import glob
 
-def create_movie_from_frames(target, frame_folder, output_path, fps=2):
+
+def create_movie_from_frames(target, frame_folder, output_path, fps=3):
     frame_files = [f for f in os.listdir(frame_folder) if f.endswith('.png') and f.startswith(target)]
     frame_files.sort(key=lambda x: int(x.split('_')[1].split('.')[0]))  
 
@@ -16,8 +19,24 @@ def create_movie_from_frames(target, frame_folder, output_path, fps=2):
 
     video_writer.release()
 
-target = 'timestep'
-N_realisation = 3
-frame_folder = 'noInflux_random_sims/temp'
-output_path = frame_folder + '/output_' + target +'_realisation_' + str(N_realisation) + '.mp4'
-create_movie_from_frames(target, frame_folder, output_path)
+def move_to_subfoler(parent_dir, target, N_realisation):
+    file_pattern = os.path.join(parent_dir, target + '_*.npy')
+    file_list = glob.glob(file_pattern)
+
+    child_dir = os.path.join(parent_dir+'/..', 'N_realisation_' + str(N_realisation))
+    os.makedirs(child_dir, exist_ok=True)
+
+    for file in file_list:
+        file_name = os.path.basename(file)
+        shutil.move(file, os.path.join(child_dir, file_name))
+    
+    print('Moved files to ' + child_dir)
+
+
+
+target = 'frame'
+N_realisation = 6
+frame_folder = 'noInflux_random_sims' 
+output_path = frame_folder + '/output_' + target +'_realisation_' + str(N_realisation)+ '.mp4'
+create_movie_from_frames(target, frame_folder + '/temp', output_path)
+move_to_subfoler(frame_folder + '/temp', target, N_realisation)

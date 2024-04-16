@@ -5,7 +5,7 @@ import matplotlib.patches as patches
 
 def merge_package(Bubbles_df_before_merge: np.ndarray, advected_states: np.ndarray, 
                   gridA_size: tuple, gridB_size: tuple, 
-                  boundaries: tuple, cell_size: tuple, R_collision: float,
+                  boundaries: tuple, cell_size: tuple, R_collision: float, st_lim: float,
                   merge_method:str, a: float, timeNow: float, this_ax , color) -> np.ndarray:
     
     """
@@ -81,6 +81,9 @@ def merge_package(Bubbles_df_before_merge: np.ndarray, advected_states: np.ndarr
             # collect all bubbles in the same cell, given by neighbors ID
             neighbors = drawer[(xj, yi, zk)]
 
+            # set a limit on the stokes number
+            neighbors = [neighbor for neighbor in neighbors if bubbles_df[np.where(bubbles_df[:, 0] == neighbor)[0][0], 7] < st_lim]
+
             if len(neighbors) == 1:
                 return 20*(xr-xl), None
             
@@ -147,7 +150,7 @@ def merge_package(Bubbles_df_before_merge: np.ndarray, advected_states: np.ndarr
             drawer_A[(new_jA, new_iA, new_kA)].append(master_ID)
             drawer_B[(new_jB, new_iB, new_kB)].append(master_ID)
 
-            return (new_xp, new_yp, new_zp)
+            return (new_xp, new_yp, new_zp), masters_slaves_dict
         
 
         collision_point_list = []
@@ -157,6 +160,10 @@ def merge_package(Bubbles_df_before_merge: np.ndarray, advected_states: np.ndarr
 
             # if slaved, skip
             if Bubbles_df_new[i, 8]:
+                pass
+
+            ### bubble size limiter ###
+            elif Bubbles_df_new[i, 7] > st_lim:
                 pass
 
             else:
@@ -185,11 +192,11 @@ def merge_package(Bubbles_df_before_merge: np.ndarray, advected_states: np.ndarr
                     
                     # now perform collision, the one with smaller ID is slaved
                     if bubble[0] < partner_ID:
-                        collision_point = update_newly_merged(master_ID=partner_ID, slave_ID=bubble[0], 
+                        collision_point, _ = update_newly_merged(master_ID=partner_ID, slave_ID=bubble[0], 
                                                             bubbles_df=Bubbles_df_new, masters_slaves_dict=masters_slaves_dict)
                     
                     else:
-                        collision_point = update_newly_merged(master_ID=bubble[0], slave_ID=partner_ID, 
+                        collision_point, _ = update_newly_merged(master_ID=bubble[0], slave_ID=partner_ID, 
                                                             bubbles_df=Bubbles_df_new, masters_slaves_dict=masters_slaves_dict)
                     
                     collision_point_list.append(collision_point)
@@ -200,7 +207,7 @@ def merge_package(Bubbles_df_before_merge: np.ndarray, advected_states: np.ndarr
         fig, ax = plt.subplots()
         ax = fig.add_subplot(111, projection='3d')
         marker_size =  (update_bubbles_df[:, 7] * 199/1.4 - 185/14)/10
-        inside = update_bubbles_df[:, 1] **2 + update_bubbles_df[:, 2] **2 + update_bubbles_df[:, 3] **2 < a
+        inside = update_bubbles_df[:, 1] **2 + update_bubbles_df[:, 2] **2 + update_bubbles_df[:, 3] **2 < a**2
 
         ax.scatter(update_bubbles_df[inside, 1], update_bubbles_df[inside, 2], update_bubbles_df[inside, 3], 
                    s=marker_size[inside]**0.5, c='k', marker='o', alpha=0.5, linewidths=0)
@@ -227,7 +234,7 @@ def merge_package(Bubbles_df_before_merge: np.ndarray, advected_states: np.ndarr
 
         ax.set_title('Bubbles at time = {}'.format(timeNow))
 
-        return update_bubbles_df, collision_point_list
+        return update_bubbles_df, collision_point_list, masters_slaves_dict
     
     # use advected properties to update the bubble dataframe
     Bubbles_df_before_merge[:, 1:7] = advected_states[:, 0:6]
@@ -244,6 +251,6 @@ def merge_package(Bubbles_df_before_merge: np.ndarray, advected_states: np.ndarr
                                                       (Bubbles_df_before_merge[:, 3] < zu)]
     
     # merge bubbles
-    Bubbles_df_after_merge, collision_point_list = merge_bubbles(Bubbles_df_before_merge)
+    Bubbles_df_after_merge, collision_point_list, masters_slaves_list = merge_bubbles(Bubbles_df_before_merge)
 
-    return Bubbles_df_after_merge, collision_point_list
+    return Bubbles_df_after_merge, collision_point_list, masters_slaves_list
