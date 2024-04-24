@@ -2,7 +2,7 @@ from numbalsoda import lsoda_sig, lsoda
 import numba as nb
 import numpy as np
 
-a, alpha, R, gravity, Fr = 1, 1, 2, True, 5
+a, alpha, R, gravity, Fr = 1, 1, 2, True, 2
 
 @nb.cfunc(lsoda_sig)
 def rhs(t, q, dq, p):

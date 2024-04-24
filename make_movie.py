@@ -35,7 +35,7 @@ def move_to_subfoler(parent_dir, target, N_realisation):
 
 
 target = 'frame'
-N_realisation = 7
+N_realisation = 10
 frame_folder = 'noInflux_random_sims' 
 output_path = frame_folder + '/output_' + target +'_realisation_' + str(N_realisation)+ '.mp4'
 create_movie_from_frames(target, frame_folder + '/temp', output_path)
